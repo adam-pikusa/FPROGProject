@@ -3,7 +3,9 @@
 # returns its content as a vector of strings. 
 # The function should be implemented using functional programming, 
 # immutability, and lambdas where possible.
-def read_file(file_path: str):
+
+
+def read_file(file_path: str) -> list:
     with open(file_path, 'r') as file_handle:
        return [line.strip() for line in file_handle.readlines()]
 
@@ -11,22 +13,26 @@ def read_file(file_path: str):
 # Create a function to tokenize a string into words. 
 # This function should use functional programming techniques 
 # and lambdas for string manipulation and splitting.
-def tokenize_string(string: str):
+def tokenize_string(string: str) -> list:
     return [part.strip('"!.?').lower() for part in string.split(' ')]
 
 # 4) Filter words: 
 # Create a function to filter words from a list based on another list. 
 # This function should use functional programming techniques, 
 # such as higher-order functions and lambdas, to perform filtering.
-def filter_words_by_terms(words: list, term_list: list):
+def filter_words_by_terms(words: list, term_list: list) -> list:
     return list(filter(lambda word: any(term in word for term in term_list), words))
+
+
+def filter_words(words: list, term_list: list):
+    return[term for word in words for term in word if term in term_list] 
 
 # 5) Count occurrences: 
 # Create a function to count the occurrences of words in a list. 
 # This function should use the map-reduce philosophy and 
 # functional programming techniques to count word occurrences 
 # in a parallelizable and efficient manner.
-def count_occurences(words: list, term_list: list):  
+def count_occurences(words: list, term_list: list) -> int:  
     return len(filter_words_by_terms(words, term_list))
 
 # 6) Calculate term density: 
@@ -35,16 +41,17 @@ def count_occurences(words: list, term_list: list):
 # to the next word of the same category. 
 # This function should use functional programming techniques and 
 # the map-reduce philosophy for parallelization and efficiency.
-def countchapterwords(words: list):
+def countchapterwords(words: list) -> int:
     length = 0
     for word in words:
             length += len(word)
     return length        
 
-def calculate_term_density(words: list, term_list: list): 
-    return (count_occurences(words,term_list)/countchapterwords(words))*100
+def calculate_term_density(words: list, term_list: list) -> float: 
+    chapterlength = countchapterwords(words)
+    return (count_occurences(words,term_list)/chapterlength)*100
 
-def group_lines_based_on_delimiting_line_pattern(lines: list, delimiting_line_pattern: str):
+def group_lines_based_on_delimiting_line_pattern(lines: list, delimiting_line_pattern: str) -> dict:
     result = {}
     chapterindex = 0
 
@@ -55,8 +62,8 @@ def group_lines_based_on_delimiting_line_pattern(lines: list, delimiting_line_pa
             chapterindex +=1
             result[chapterindex] = []
             continue
-        ##if line.startswith("*** END OF THE PROJECT GUTENBERG EBOOK, WAR AND PEACE ***"):
-        ##    break
+        if line.startswith("*** END OF THE PROJECT GUTENBERG EBOOK, WAR AND PEACE ***"):
+            break
 
         if current_group == None: 
             continue
