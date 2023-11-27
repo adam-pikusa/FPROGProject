@@ -14,14 +14,14 @@ def filter_words_by_terms(words: list, term_list: list) -> list:
 def count_occurences(words: list, term_list: list) -> int:  
     return len(filter_words_by_terms(words, term_list))
 
-def countchapterwords(words: list) -> int:
-    length = 0
-    for word in words:
-            length += len(word)
-    return length        
+def count_chapter_words(lines: list) -> int:
+    word_count = 0
+    for line in lines:
+        word_count += len(line)
+    return word_count        
 
 def calculate_term_density(words: list, term_list: list) -> float: 
-    return (count_occurences(words,term_list)/countchapterwords(words))*100
+    return (count_occurences(words, term_list) / count_chapter_words(words))*100
 
 def group_lines_based_on_delimiting_line_pattern(lines: list, delimiting_line_pattern: str) -> dict:
     result = {}
