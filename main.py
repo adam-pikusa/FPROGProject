@@ -90,11 +90,12 @@ def main():
  
     peace_terms = read_file(args.Termlist1)
     war_terms = read_file(args.Termlist2)
+    war_and_peace = read_file(args.Input)
 
-    chapters_start_at = 64
-    chapters_end_at = 67099
+    chapters_start_at = war_and_peace.index('CHAPTER 1')
+    chapters_end_at = war_and_peace.index('*** END OF THE PROJECT GUTENBERG EBOOK, WAR AND PEACE ***')
 
-    chapters = group_lines_based_on_delimiting_line_pattern(read_file(args.Input)[chapters_start_at:chapters_end_at], 'CHAPTER ')
+    chapters = group_lines_based_on_delimiting_line_pattern(war_and_peace[chapters_start_at:chapters_end_at], 'CHAPTER ')
     chunks = list(chunk_collection(list(chapters.items()), 5))
 
     map_result = map(map_function(war_terms, peace_terms), chunks)
