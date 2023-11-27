@@ -1,42 +1,19 @@
 import argparse
 import os.path
-# 2) Read files: 
-# Create a function that reads a file and 
-# returns its content as a vector of strings. 
-# The function should be implemented using functional programming, 
-# immutability, and lambdas where possible.
+
 def read_file(file_path: str) -> list:
     with open(file_path, 'r') as file_handle:
        return [line.strip() for line in file_handle.readlines()]
 
-# 3) Tokenize the text: 
-# Create a function to tokenize a string into words. 
-# This function should use functional programming techniques 
-# and lambdas for string manipulation and splitting.
 def tokenize_string(string: str) -> list:
     return [part.strip('"!.?').lower() for part in string.split(' ')]
 
-# 4) Filter words: 
-# Create a function to filter words from a list based on another list. 
-# This function should use functional programming techniques, 
-# such as higher-order functions and lambdas, to perform filtering.
 def filter_words_by_terms(words: list, term_list: list) -> list:
     return list(filter(lambda word: any(term in word for term in term_list), words))
 
-# 5) Count occurrences: 
-# Create a function to count the occurrences of words in a list. 
-# This function should use the map-reduce philosophy and 
-# functional programming techniques to count word occurrences 
-# in a parallelizable and efficient manner.
 def count_occurences(words: list, term_list: list) -> int:  
     return len(filter_words_by_terms(words, term_list))
 
-# 6) Calculate term density: 
-# Create a function to calculate the density of terms in a text, 
-# based on the occurrences of words and their relative distances 
-# to the next word of the same category. 
-# This function should use functional programming techniques and 
-# the map-reduce philosophy for parallelization and efficiency.
 def countchapterwords(words: list) -> int:
     length = 0
     for word in words:
@@ -56,9 +33,7 @@ def group_lines_based_on_delimiting_line_pattern(lines: list, delimiting_line_pa
             current_group = line[len(delimiting_line_pattern):]
             chapterindex +=1
             result[chapterindex] = []
-            continue
-        if line.startswith("*** END OF THE PROJECT GUTENBERG EBOOK, WAR AND PEACE ***"):
-            break        
+            continue  
         if current_group == None: 
             continue
     
@@ -96,12 +71,6 @@ def is_valid_file(parser, arg):
 
 def main():
     
-    # 7) Read input files and tokenize: 
-    # Read the input files (book, war terms, and peace terms) 
-    # and tokenize their contents into words using the 
-    # functions created in steps 2 and 3.
-    
-
     msg = "A simple tokenizer for categorizing chapters from Tolsoty's War and Peace into either war or peace related chapters."
  
     # Initialize parser
@@ -121,17 +90,18 @@ def main():
  
     peace_terms = read_file(args.Termlist1)
     war_terms = read_file(args.Termlist2)
-    #peace_terms = read_file('peace_terms.txt')
-    #war_terms = read_file('war_terms.txt')
 
-    chapters = group_lines_based_on_delimiting_line_pattern(read_file(args.Input), 'CHAPTER ')
+    chapters_start_at = 64
+    chapters_end_at = 67099
+
+    chapters = group_lines_based_on_delimiting_line_pattern(read_file(args.Input)[chapters_start_at:chapters_end_at], 'CHAPTER ')
     chunks = list(chunk_collection(list(chapters.items()), 5))
 
     map_result = map(map_function(war_terms, peace_terms), chunks)
     shuffle_result = shuffle_function(map_result)
     result = map(reduce_function, shuffle_result)
 
-    with open('output.txt', 'w+') as file:
+    with open(args.Output, 'w+') as file:
         for i in sum(result, []):
             file.write(i)
             file.write('\n')

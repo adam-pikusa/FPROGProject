@@ -11,4 +11,4 @@ How to start:
      -t1 peace_terms textfile
      -t2 war_terms textfile
  
-
+Made by Adam Pikusa and Florian Kretz
