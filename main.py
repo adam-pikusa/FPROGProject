@@ -66,6 +66,26 @@ def group_lines_based_on_delimiting_line_pattern(lines: list, delimiting_line_pa
         
     return result
 
+def chunk_collection(col, n):
+    for i in range(0, len(col), n):
+        yield col[i:i + n]
+
+def map_function(war_terms, peace_terms):
+    def inner_map_function(chapters):
+        return [
+                (chapter[0], [
+                    calculate_term_density([tokenize_string(line) for line in chapter[1]], war_terms),
+                    calculate_term_density([tokenize_string(line) for line in chapter[1]], peace_terms) ]) 
+                    for chapter in chapters]
+    return inner_map_function
+
+def shuffle_function(map_result):
+    return chunk_collection(sum(map_result, []), 5)
+
+def reduce_function(chapters_with_densities):
+    cds = list(chapters_with_densities)
+    return [('CHAPTER ' + str(c) + (': war-related' if d[0] > d[1] else ': peace-related')) for c, d in cds] 
+
 def is_valid_file(parser, arg):
     if not os.path.exists(arg):
         parser.error(f"The file {arg} does not exist.")
@@ -101,51 +121,20 @@ def main():
  
     peace_terms = read_file(args.Termlist1)
     war_terms = read_file(args.Termlist2)
-    book = read_file(args.Input)
+    #peace_terms = read_file('peace_terms.txt')
+    #war_terms = read_file('war_terms.txt')
 
+    chapters = group_lines_based_on_delimiting_line_pattern(read_file(args.Input), 'CHAPTER ')
+    chunks = list(chunk_collection(list(chapters.items()), 5))
 
-    # 8) Process chapters: 
-    # Process each chapter in the book by 
-    # calculating the density of war and peace terms 
-    # using the functions created in steps 4, 5, and 6. 
-    # Store the densities in separate vectors for further processing.
+    map_result = map(map_function(war_terms, peace_terms), chunks)
+    shuffle_result = shuffle_function(map_result)
+    result = map(reduce_function, shuffle_result)
 
-    chapters = group_lines_based_on_delimiting_line_pattern(book, 'CHAPTER ')
-
-    
-    result = {}
-
-    for chapter, chapter_lines in chapters.items():
-        density = []
-        filtered_list = list(filter(lambda x: len(x) > 0, chapter_lines))
-        density.append(calculate_term_density([tokenize_string(line) for line in filtered_list],war_terms))
-        density.append(calculate_term_density([tokenize_string(line) for line in filtered_list],peace_terms))
-        result[chapter] = density
-
-   
-    # 9) Categorize chapters:
-    # Iterate through the chapters, and for each chapter, 
-    # compare the war density to the peace density to 
-    # determine if it's war-related or peace-related. 
-    # Store the results in a vector.
-    
-
-    # 10) Print results: 
-    # Iterate through the results vector and print 
-    # each chapter's categorization as war-related or peace-related.
-    file = open(args.Output, 'w+')
-
-    for chapterid, densitys in result.items():
-       #print('CHAPTER',chapterid)
-       if(densitys[0] > densitys[1]):
-       # print("war-related")
-        file.write('CHAPTER ' + str(chapterid) + ': war-related \n')
-       else:
-        #print("peace-related")
-        file.write('CHAPTER ' + str(chapterid) + ': peace-related \n')
-        #file.write('CHAPTER '+ chapterid + ': peace-related')
-    
-    file.close()
+    with open('output.txt', 'w+') as file:
+        for i in sum(result, []):
+            file.write(i)
+            file.write('\n')
   
 if __name__ == '__main__':
     main()
