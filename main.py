@@ -56,9 +56,7 @@ def group_lines_based_on_delimiting_line_pattern(lines: list, delimiting_line_pa
             current_group = line[len(delimiting_line_pattern):]
             chapterindex +=1
             result[chapterindex] = []
-            continue
-        if line.startswith("*** END OF THE PROJECT GUTENBERG EBOOK, WAR AND PEACE ***"):
-            break        
+            continue  
         if current_group == None: 
             continue
     
@@ -124,7 +122,10 @@ def main():
     #peace_terms = read_file('peace_terms.txt')
     #war_terms = read_file('war_terms.txt')
 
-    chapters = group_lines_based_on_delimiting_line_pattern(read_file(args.Input), 'CHAPTER ')
+    chapters_start_at = 64
+    chapters_end_at = 67099
+
+    chapters = group_lines_based_on_delimiting_line_pattern(read_file(args.Input)[chapters_start_at:chapters_end_at], 'CHAPTER ')
     chunks = list(chunk_collection(list(chapters.items()), 5))
 
     map_result = map(map_function(war_terms, peace_terms), chunks)
