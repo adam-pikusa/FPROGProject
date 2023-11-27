@@ -1,10 +1,10 @@
+import argparse
+import os.path
 # 2) Read files: 
 # Create a function that reads a file and 
 # returns its content as a vector of strings. 
 # The function should be implemented using functional programming, 
 # immutability, and lambdas where possible.
-
-
 def read_file(file_path: str) -> list:
     with open(file_path, 'r') as file_handle:
        return [line.strip() for line in file_handle.readlines()]
@@ -22,10 +22,6 @@ def tokenize_string(string: str) -> list:
 # such as higher-order functions and lambdas, to perform filtering.
 def filter_words_by_terms(words: list, term_list: list) -> list:
     return list(filter(lambda word: any(term in word for term in term_list), words))
-
-
-def filter_words(words: list, term_list: list):
-    return[term for word in words for term in word if term in term_list] 
 
 # 5) Count occurrences: 
 # Create a function to count the occurrences of words in a list. 
@@ -48,8 +44,7 @@ def countchapterwords(words: list) -> int:
     return length        
 
 def calculate_term_density(words: list, term_list: list) -> float: 
-    chapterlength = countchapterwords(words)
-    return (count_occurences(words,term_list)/chapterlength)*100
+    return (count_occurences(words,term_list)/countchapterwords(words))*100
 
 def group_lines_based_on_delimiting_line_pattern(lines: list, delimiting_line_pattern: str) -> dict:
     result = {}
@@ -63,8 +58,7 @@ def group_lines_based_on_delimiting_line_pattern(lines: list, delimiting_line_pa
             result[chapterindex] = []
             continue
         if line.startswith("*** END OF THE PROJECT GUTENBERG EBOOK, WAR AND PEACE ***"):
-            break
-
+            break        
         if current_group == None: 
             continue
     
@@ -72,14 +66,42 @@ def group_lines_based_on_delimiting_line_pattern(lines: list, delimiting_line_pa
         
     return result
 
+def is_valid_file(parser, arg):
+    if not os.path.exists(arg):
+        parser.error(f"The file {arg} does not exist.")
+    if not arg.lower().endswith('.txt'):
+        parser.error(f"The file {arg} is not a .txt file.")
+    return arg
+
+
 def main():
     
     # 7) Read input files and tokenize: 
     # Read the input files (book, war terms, and peace terms) 
     # and tokenize their contents into words using the 
     # functions created in steps 2 and 3.
-    peace_terms = read_file('peace_terms.txt')
-    war_terms = read_file('war_terms.txt')
+    
+
+    msg = "Adding description"
+ 
+    # Initialize parser
+    parser = argparse.ArgumentParser(
+                    prog='ProgramName',
+                    description= msg,
+                    epilog='Text at the bottom of help')
+    
+    # Adding optional argument
+    parser.add_argument("-o", "--Output", help = "Output filepath" , required= True)
+    parser.add_argument("-i", "--Input", type=lambda x: is_valid_file(parser, x), help = "Input filepath", required= True)
+    parser.add_argument("-t1", "--Termlist1", type=lambda x: is_valid_file(parser, x), help = "Peace Termlist", required= True)
+    parser.add_argument("-t2", "--Termlist2", type=lambda x: is_valid_file(parser, x), help = "War Termlist", required= True)
+    
+    # Read arguments from command line
+    args = parser.parse_args()
+ 
+    peace_terms = read_file(args.Termlist1)
+    war_terms = read_file(args.Termlist2)
+    book = read_file(args.Input)
 
 
     # 8) Process chapters: 
@@ -87,7 +109,8 @@ def main():
     # calculating the density of war and peace terms 
     # using the functions created in steps 4, 5, and 6. 
     # Store the densities in separate vectors for further processing.
-    chapters = group_lines_based_on_delimiting_line_pattern(read_file('war_and_peace.txt'), 'CHAPTER ')
+
+    chapters = group_lines_based_on_delimiting_line_pattern(book, 'CHAPTER ')
 
     
     result = {}
@@ -110,7 +133,7 @@ def main():
     # 10) Print results: 
     # Iterate through the results vector and print 
     # each chapter's categorization as war-related or peace-related.
-    file = open('output.txt', 'w+')
+    file = open(args.Output, 'w+')
 
     for chapterid, densitys in result.items():
        #print('CHAPTER',chapterid)
