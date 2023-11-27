@@ -82,13 +82,13 @@ def main():
     # functions created in steps 2 and 3.
     
 
-    msg = "Adding description"
+    msg = "A simple tokenizer for categorizing chapters from Tolsoty's War and Peace into either war or peace related chapters."
  
     # Initialize parser
     parser = argparse.ArgumentParser(
-                    prog='ProgramName',
+                    prog='FPROG-Tokenizer',
                     description= msg,
-                    epilog='Text at the bottom of help')
+                    epilog='Made by Adam Pikusa and Florian Kretz')
     
     # Adding optional argument
     parser.add_argument("-o", "--Output", help = "Output filepath" , required= True)
